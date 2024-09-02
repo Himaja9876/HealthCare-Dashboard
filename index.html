@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <link rel="stylesheet" href="app.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <header>
+
+      <div id="headerContainer">
+        <div class="rowLogo">
+          <div class="col">
+            <div ></div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="row">
+            
+            <nav class="navbar">
+              <span class="navbar-link">
+                <div class="homelogo"></div>
+                <strong>Overview</strong>
+              </span>
+      
+              <span class="navbar-link">
+                <div class="patientlogo"></div>
+                <strong>Patients</strong>
+              </span>
+      
+              <span class="navbar-link">
+                <div class="schedulelogo"></div>
+                <strong>Schedule</strong>
+              </span>
+              <span class="navbar-link">
+                <div class="messagelogo"></div>
+                <strong>Message</strong>
+              </span>
+              <span class="navbar-link">
+                <div class="transactionslogo"></div>
+                <strong>Transactions</strong>
+              </span>
+            </nav>
+
+          </div>
+        </div>
+
+          <div class="row">
+          <div class="col">
+            <div class="doctor-info">
+              <div class="doctor-logo"></div>
+              <div class="doctor-text">
+                  <p>Dr. Jose Simmons</p>
+                  <p>General Practitioner</p>
+              </div>
+              <div class="extra-logos">
+                  <div class="extra-logo2"></div>
+                  <div class="extra-logo1"></div>    
+              </div>
+            </div>
+          </div>    
+        </div>
+        </div>  
+    </header>
+
+    <main class="mainBody">
+      
+      <section class="patientScroll">  
+        <div class="patients-container">
+          <div class="col">
+            <p class="patients">Patients</p>
+          </div>
+          <div class="col search">
+            <img src="img/search_FILL0_wght300_GRAD0_opsz24.svg" alt="search"/>
+          </div>
+        </div>
+       
+            
+        <ul id="patientList"></ul>
+      </section>
+      
+      <div class="diagnosticContainer">
+        <section class="diagnosisHistory">
+          <p>Diagnosis History</p>
+          <div id="graphContainer">
+            <div>
+              <p id="graphTitle">Blood Pressure</p>
+              <div style="width: 500px"><canvas id="myChart"></canvas></div>
+            </div>
+            <div>
+              <div class="graphLegendContainer">
+                <div class="graphLegend systolic"></div>
+                <p class="graphLegend">Systolic</p>
+              </div>
+              <p class="graphLegendValue"></p>
+              <p class="graphLegendRange"></p>
+              <div class="graphLegendContainer">
+                <div class="graphLegend diastolic"></div>
+                <p class="graphLegend">Diastolic</p>
+              </div>
+              <p class="graphLegendValue"></p>
+              <p class="graphLegendRange"></p>
+            </div>
+          </div>
+          <div id="diagnosisStats">
+            <div class="diagnosisStatsCard" id="respiratoryRate">
+              <div class="diagnosisStatsCardLogo" id="respiratoryRateLogo"></div>
+              <p class="diagnosisStatsTitle">Respiratory Rate</p>
+              <p class="diagnosisStatsValue"></p>
+              <p class="diagnosisStatsRange"></p>
+            </div>
+            <div class="diagnosisStatsCard" id="temperature">
+              <div class="diagnosisStatsCardLogo" id="temperatureLogo"></div>
+              <p class="diagnosisStatsTitle">Temperature</p>
+              <p class="diagnosisStatsValue"></p>
+              <p class="diagnosisStatsRange"></p>
+            </div>
+            <div class="diagnosisStatsCard" id="heartRate">
+              <div class="diagnosisStatsCardLogo" id="heartRateLogo"></div>
+              <p class="diagnosisStatsTitle">Heart Rate</p>
+              <p class="diagnosisStatsValue"></p>
+              <p class="diagnosisStatsRange"></p>
+            </div>
+          </div>
+        </section>
+  
+        <section class="diagnosticList">
+          <p>Diagnostic List</p>
+        </section>
+
+      </div>
+      
+      <div class="jessicaLabContainer">
+        <section class="JessicaData">
+     
+        </section>
+        <section class="labResults">
+          <p>Lab Results</p>
+          <ul id="labResultsList"></ul>
+        </section>
+      </div>
+
+      
+
+    </main>
+    <script>
+      (async function () {
+        let username = "coalition";
+        let password = "skills-test";
+        const auth = btoa(`${username}:${password}`);
+        const response = await fetch(
+          "https://fedskillstest.coalitiontechnologies.workers.dev",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${auth}`,
+            },
+          }
+        );
+    const jsonData = await response.json();
+    console.log(jsonData);
+
+    displayPatientDetails(jsonData);
+        
+
+    function displayPatientDetails(patients) {
+    const patientList = document.getElementById('patientList');
+    patientList.innerHTML = ''; 
+
+    const commonImagePath = 'img/more_horiz_FILL0_wght300_GRAD0_opsz24.svg';
+    patients.forEach(patient => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('patient-list-item'); 
+
+   
+    const profileContainer = document.createElement('div');
+    profileContainer.classList.add('profile-container');
+
+    
+    const profileImg = document.createElement('img');
+    profileImg.src = patient.profile_picture; 
+    profileImg.alt = 'Profile Picture'; 
+    profileImg.classList.add('profile-img'); 
+    profileContainer.appendChild(profileImg);
+
+    
+    const detailsContainer = document.createElement('div');
+    detailsContainer.classList.add('details-container');
+
+    
+    const nameText = document.createElement('p');
+    nameText.textContent = patient.name;
+    nameText.classList.add('patient-name'); 
+    detailsContainer.appendChild(nameText);
+
+    
+    const infoText = document.createElement('p');
+    infoText.textContent = `${patient.gender}, ${patient.age}`;
+    infoText.classList.add('patient-info'); 
+    detailsContainer.appendChild(infoText);
+
+    profileContainer.appendChild(detailsContainer);
+
+    // const commonImage = document.createElement('img');
+    // commonImage.src = commonImagePath;
+    // commonImage.alt = 'Common Image'; // Alt text for accessibility
+    // commonImage.classList.add('common-img'); // Add a class for styling
+    // profileContainer.appendChild(commonImage);
+
+    listItem.appendChild(profileContainer);
+    patientList.appendChild(listItem);
+  });
+}
+
+displayJessicaDetails(jsonData);
+
+function displayJessicaDetails(patients) {
+  // Find Jessica Taylor's details
+  const jessica = patients.find(patient => patient.name === "Jessica Taylor");
+  console.log(jessica);
+  
+  if (jessica) {
+    const jessicaDataSection = document.querySelector('.JessicaData');
+    jessicaDataSection.innerHTML = ''; 
+
+    
+    const profileImg = document.createElement('img');
+    profileImg.src = jessica.profile_picture; 
+    profileImg.alt = 'Jessica Taylor\'s Profile Picture'; 
+    profileImg.classList.add('jessica-img');
+    jessicaDataSection.appendChild(profileImg);
+
+    // Create and append the name
+    const name = document.createElement('p');
+    name.textContent = jessica.name;
+    name.classList.add('jessica-name'); 
+    jessicaDataSection.appendChild(name);
+
+    const icons = {
+      date_of_birth: 'img/BirthIcon.svg',
+      gender: 'img/FemaleIcon.svg',
+      phone_number: 'img/PhoneIcon.svg',
+      emergency_contact: 'img/PhoneIcon.svg',
+      insurance_type: 'img/InsuranceIcon.svg',
+    };
+
+
+    // Create and append other details
+    const details = [
+      { label: 'Date of Birth', value: jessica.date_of_birth, icon: icons.date_of_birth },
+      { label: 'Gender', value: jessica.gender, icon: icons.gender },
+      { label: 'Contact Info', value: jessica.phone_number, icon: icons.phone_number },
+      { label: 'Emergency Contacts', value: jessica.emergency_contact, icon: icons.emergency_contact },
+      { label: 'Insurance Provider', value: jessica.insurance_type, icon: icons.insurance_type },
+    ];
+
+  details.forEach(detail => {
+  const detailElement = document.createElement('div');
+  detailElement.classList.add('jessica-detail'); 
+
+  // Create and append the icon image
+  const iconImg = document.createElement('img');
+  iconImg.src = detail.icon;
+  iconImg.alt = `${detail.label} Icon`; 
+  iconImg.classList.add('detail-icon');
+  detailElement.appendChild(iconImg);
+ 
+  const labelValueContainer = document.createElement('div');
+  labelValueContainer.classList.add('label-value-container'); 
+
+  const labelElement = document.createElement('div');
+  labelElement.classList.add('detail-label'); 
+  labelElement.textContent = detail.label;
+  labelValueContainer.appendChild(labelElement);
+  
+  const valueElement = document.createElement('div');
+  valueElement.classList.add('detail-value'); 
+  valueElement.textContent = detail.value;
+  labelValueContainer.appendChild(valueElement);
+
+  detailElement.appendChild(labelValueContainer);
+
+  jessicaDataSection.appendChild(detailElement);
+});
+
+  }
+}
+
+function displayDiagnosticList(jessica) {
+    const diagnosticListSection = document.querySelector('.diagnosticList');
+   
+    // Create a table element
+    const table = document.createElement('table');
+    table.classList.add('diagnostic-table'); 
+
+    // Create the table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const headers = ['Problem', 'Description', 'Status'];
+    headers.forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create the table body
+    const tbody = document.createElement('tbody');
+    jessica.diagnostic_list.forEach(diagnostic => {
+        const row = document.createElement('tr');
+
+        const problemCell = document.createElement('td');
+        problemCell.textContent = diagnostic.name;
+        row.appendChild(problemCell);
+
+        const descriptionCell = document.createElement('td');
+        descriptionCell.textContent = diagnostic.description;
+        row.appendChild(descriptionCell);
+
+        const statusCell = document.createElement('td');
+        statusCell.textContent = diagnostic.status;
+        row.appendChild(statusCell);
+
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    diagnosticListSection.appendChild(table);
+}
+
+function displayLabResults(jessica) {
+  const labResultsSection = document.querySelector('.labResults');
+  const labResultsList = document.getElementById('labResultsList');
+  labResultsList.innerHTML = ''; // Clear existing content
+
+  // Check if lab_results is defined and has data
+  if (jessica && jessica.lab_results && jessica.lab_results.length > 0) {
+    jessica.lab_results.forEach(result => {
+      const listItem = document.createElement('li');
+      
+      // Create a span for the text content
+      const textSpan = document.createElement('span');
+      textSpan.textContent = result; // Set text content to lab result
+      
+      // Create an img element for the image
+      const imgElement = document.createElement('img');
+      imgElement.src = 'img/download_FILL0_wght300_GRAD0_opsz24.svg'; // Replace with the URL of your image
+      imgElement.alt = 'Lab Result Image'; // Alternative text for the image
+
+      // Append text and image to the list item
+      listItem.appendChild(textSpan);
+      listItem.appendChild(imgElement);
+      
+      labResultsList.appendChild(listItem);
+    });
+  } else {
+    labResultsList.innerHTML = '<li>No lab results available.</li>'; // Handle empty results
+  }
+}
+
+
+  displayJessicaDetails(jsonData);
+  const jessica = jsonData.find(patient => patient.name === "Jessica Taylor");
+  displayDiagnosticList(jessica);
+  displayLabResults(jessica);
+
+        const data = jsonData[0].diagnosis_history.reverse();
+        const labels = data.map(
+          (data) => `${data.month.substring(0, 3)}, ${data.year}`
+        );
+        
+        const { heart_rate, respiratory_rate, temperature, blood_pressure } =
+        data[data.length - 1];
+        respiratory_rate.value = `${respiratory_rate.value} bpm`;
+        temperature.value = `${temperature.value} F`;
+        heart_rate.value = `${heart_rate.value} bpm`;
+        const stats = [respiratory_rate, temperature, heart_rate];
+        const bloodPressures = [
+          blood_pressure.systolic,
+          blood_pressure.diastolic,
+        ];
+        const rangeNodes = document.querySelectorAll(".diagnosisStatsRange");
+        const legendRangeNodes = document.querySelectorAll(".graphLegendRange");
+        document
+          .querySelectorAll(".graphLegendValue")
+          .forEach((item, index) => {
+            item.innerHTML = bloodPressures[index].value;
+            legendRangeNodes[index].innerHTML = bloodPressures[index].levels;
+          });
+        document
+          .querySelectorAll(".diagnosisStatsValue")
+          .forEach((item, index) => {
+            item.innerHTML = stats[index].value;
+            rangeNodes[index].innerHTML = stats[index].levels;
+          });
+        new Chart(document.getElementById("myChart"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Systolic",
+                data: data.map((data) => data.blood_pressure.systolic.value),
+                fill: false,
+                borderColor: "#C26EB4",
+                pointBackgroundColor: "#C26EB4",
+                borderWidth: 2,
+              },
+              {
+                label: "Diastolic",
+                data: data.map((data) => data.blood_pressure.diastolic.value),
+                fill: false,
+                borderColor: "#7E6CAB",
+                pointBackgroundColor: "#7E6CAB",
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            legend: {
+              display: false,
+            },
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+          },
+        });
+      })();
+    </script>
+  </body>
+</html>
